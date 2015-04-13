@@ -1,0 +1,78 @@
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<button id="test-button" class= "test-button">Generate D3 Visualization</button>
+<svg id="chart" class="myChart"></svg>
+<style>
+.test-button {
+	border-radius:6px;
+    color: #fff;
+    font-size: 20px;
+    text-decoration: none;
+    cursor: pointer;
+    border:none;
+}
+.myChart{
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: auto;
+	margin-bottom: auto;
+	padding: 3px;
+	background-color: steelblue;
+}
+
+.myChart circle {
+	fill: red;
+}
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+</style>
+<script type="text/javascript">
+$('#test-button').click(function() {
+	var width = 500;
+	var height = 400;
+
+	var svg = d3.select("svg").attr("width", width);
+	var scaleFactor = 5;
+	d3.csv("BodyFat.csv", function(error, data) {
+		var x = d3.scale.linear()
+					.domain([0, d3.max(data, function(d) { return d.AGE; })])
+					.range([0, width]);
+		var maxYVal = d3.max(data, function(d) { return d.BODYFAT * d.ADIPOSITY; });
+		var y = d3.scale.linear()
+					.domain([0, maxYVal])
+					.range([0, height]);
+		svg.attr("height", height);
+		var xAxis = d3.svg.axis()
+		    .scale(x)
+		    .orient("bottom");
+
+		var yAxis = d3.svg.axis()
+		    .scale(y)
+		    .orient("left");
+
+
+	    svg.append("g")
+	      .attr("class", "y axis")
+	      .call(yAxis)
+	      .append("text")
+		    .attr("transform", "rotate(-90)")
+		    .attr("y", 6)
+		    .attr("dy", ".71em")
+		    .style("text-anchor", "end")
+		    .text("BodyFat * Adiposity");
+
+		var circle = svg.selectAll("circle").data(data);
+		var maxWeight = d3.max(data, function(d) { return d.WEIGHT; });
+		circle.enter().append("circle")
+					.attr("cx", function(d) { return x(d.AGE); })
+					.attr("cy", function(d) { return y(d.BODYFAT * d.ADIPOSITY); })
+					.attr("r", function(d) { return d.WEIGHT/ maxWeight * scaleFactor});
+	});
+
+});
+</script>
