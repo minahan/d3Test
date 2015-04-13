@@ -35,18 +35,22 @@
 $('#test-button').click(function() {
 	var width = 500;
 	var height = 400;
+	var svg = d3.select("svg").attr("width", width).attr("height", height);
+	var scaleFactor = 5; //scale factor for radius of circles
 
-	var svg = d3.select("svg").attr("width", width);
-	var scaleFactor = 5;
 	d3.csv("BodyFat.csv", function(error, data) {
+		// scale x values to the X axis
 		var x = d3.scale.linear()
 					.domain([0, d3.max(data, function(d) { return d.AGE; })])
 					.range([0, width]);
+
+		// scale y values to the Y axis			
 		var maxYVal = d3.max(data, function(d) { return d.BODYFAT * d.ADIPOSITY; });
 		var y = d3.scale.linear()
 					.domain([0, maxYVal])
 					.range([0, height]);
-		svg.attr("height", height);
+
+		//setup axis for the graph			
 		var xAxis = d3.svg.axis()
 		    .scale(x)
 		    .orient("bottom");
@@ -68,6 +72,8 @@ $('#test-button').click(function() {
 
 		var circle = svg.selectAll("circle").data(data);
 		var maxWeight = d3.max(data, function(d) { return d.WEIGHT; });
+		
+		// populate graph with data
 		circle.enter().append("circle")
 					.attr("cx", function(d) { return x(d.AGE); })
 					.attr("cy", function(d) { return y(d.BODYFAT * d.ADIPOSITY); })
